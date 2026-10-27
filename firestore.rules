@@ -1,0 +1,152 @@
+rules_version = '2';
+
+// firestore.rules
+// Princíp: klient smie čítať to, čo potrebuje, a zapisovať len svoj profil.
+// VŠETKO ostatné (body, lekcie, nákupy, hodnotenia, reporty) zapisuje iba server
+// cez Admin SDK. Admin SDK tieto pravidlá obchádza, takže "write: if false"
+// nezablokuje API routes, len priame zápisy z prehliadača.
+//
+// Zmeny tohto súboru popíš v PR a uprav docs/firestore-schema.md.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------------
+    // Pomocné funkcie
+    // ---------------------------------------------------------------------
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Stojí jedno čítanie dokumentu navyše. Používa sa len tam, kde to treba.
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ---------------------------------------------------------------------
+    // users/{uid}
+    // ---------------------------------------------------------------------
+    // Vytvára ho len server (register route), preto create/delete = false.
+    // Klient smie meniť IBA tieto polia. Body, role, welcomeBonusGranted,
+    // ratingAvg a ratingCount v zozname zámerne chýbajú.
+    //
+    // POZOR: read je pre všetkých prihlásených, takže vidia aj pointsBalance
+    // a pointsHeld. Riešenie, ak to nechceš: body presunúť do
+    // users/{uid}/private/wallet (zmena v lib/points.ts) a pre tú cestu
+    // dať read len pre vlastníka.
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create, delete: if false;
+
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['displayName', 'bio', 'offeredSkillIds', 'wantedSkillIds'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 1
+        && request.resource.data.displayName.size() <= 60
+        && request.resource.data.bio is string
+        && request.resource.data.bio.size() <= 500
+        && request.resource.data.offeredSkillIds is list
+        && request.resource.data.offeredSkillIds.size() <= 20
+        && request.resource.data.wantedSkillIds is list
+        && request.resource.data.wantedSkillIds.size() <= 20;
+    }
+
+    // ---------------------------------------------------------------------
+    // skills/{skillId}
+    // ---------------------------------------------------------------------
+    // Čítať môže každý prihlásený. Vytvárať a upravovať len admin.
+    // Mazanie nie je povolené (zručnosť sa skrýva cez status: 'hidden').
+
+    match /skills/{skillId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // lessons/{lessonId}
+    // ---------------------------------------------------------------------
+    // Číta len študent, učiteľ alebo admin. Zapisuje výhradne server.
+    // Klientske dotazy MUSIA obsahovať where('studentId', '==', uid) alebo
+    // where('tutorId', '==', uid), inak ich Firestore odmietne celé.
+
+    match /lessons/{lessonId} {
+      allow read: if signedIn()
+        && (resource.data.studentId == request.auth.uid
+            || resource.data.tutorId == request.auth.uid
+            || isAdmin());
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // points_transactions/{txId}
+    // ---------------------------------------------------------------------
+    // Vlastná história bodov. Append-only audit, zapisuje len server.
+
+    match /points_transactions/{txId} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // documents/{documentId}
+    // ---------------------------------------------------------------------
+    // Metadáta (názov, cena) vidia všetci prihlásení. Samotný súbor chráni
+    // storage.rules (ešte neexistujú), storagePath v dokumente nie je prístup.
+    // Zápis cez server (API route pre nahrávanie).
+
+    match /documents/{documentId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // document_purchases/{documentId}_{buyerId}
+    // ---------------------------------------------------------------------
+
+    match /document_purchases/{purchaseId} {
+      allow read: if signedIn()
+        && (resource.data.buyerId == request.auth.uid
+            || resource.data.sellerId == request.auth.uid);
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // reviews/{reviewId}
+    // ---------------------------------------------------------------------
+    // Čítanie pre všetkých prihlásených. Zápis len server, ktorý overí, že
+    // lekcia je 'completed', a prepočíta ratingAvg v tej istej transakcii.
+
+    match /reviews/{reviewId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // reports/{reportId}
+    // ---------------------------------------------------------------------
+    // Fronta pre admina. Obsahuje spory a neskôr nahlásenia používateľov,
+    // preto ich bežný používateľ nečíta. Rozhoduje sa cez API route.
+
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // Všetko ostatné je zakázané.
+    // ---------------------------------------------------------------------
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
