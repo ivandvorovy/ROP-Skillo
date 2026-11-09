@@ -1,12 +1,13 @@
 import Link from 'next/link';
+import { SkilloMark } from '@/components/logo';
 import { ArrowRight, buttonClass, linkClass } from '@/components/ui';
 
 // Ukážkové karty v hero (namiesto fotiek lektorov). Ceny zodpovedajú vzorcu
 // calculateLessonPrice v lib/points.ts: 60 min ľahká = 8 b, 45 min stredná = 9 b, 30 min ťažká = 8 b.
 const SAMPLE_TUTORS = [
-  { initials: 'EK', name: 'Ema K.', klass: '3.B', skill: 'Matematika', detail: '60 min · 8 bodov', tone: 'bg-pink-soft' },
-  { initials: 'TM', name: 'Tomáš M.', klass: '4.A', skill: 'Python', detail: '45 min · 9 bodov', tone: 'bg-subtle' },
-  { initials: 'SL', name: 'Sára L.', klass: '2.C', skill: 'Nemčina', detail: '30 min · 8 bodov', tone: 'bg-success-soft' },
+  { initials: 'EK', name: 'Ema K.', klass: '3.B', skill: 'Matematika', minutes: 60, points: 8, tone: 'bg-pink-soft' },
+  { initials: 'TM', name: 'Tomáš M.', klass: '4.A', skill: 'Python', minutes: 45, points: 9, tone: 'bg-subtle' },
+  { initials: 'SL', name: 'Sára L.', klass: '2.C', skill: 'Nemčina', minutes: 30, points: 8, tone: 'bg-success-soft' },
 ];
 
 // Len fakty, ktoré platia v kóde (žiadne vymyslené počty používateľov).
@@ -69,7 +70,12 @@ export default function HomePage() {
                     <p className="text-sm text-muted">Učí: {t.skill}</p>
                   </div>
                 </div>
-                <p className="mt-4 border-t border-line pt-3 text-sm font-semibold tabular-nums">{t.detail}</p>
+                {/* Malá značka S pred bodmi (docs/brand/ikona-a-pouzitie.png). */}
+                <p className="mt-4 flex items-center gap-1.5 border-t border-line pt-3 text-sm font-semibold tabular-nums">
+                  {t.minutes} min ·
+                  <SkilloMark small className="h-[1.1em]" />
+                  {t.points} bodov
+                </p>
               </div>
             ))}
           </div>
