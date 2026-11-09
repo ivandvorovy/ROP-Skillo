@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+/*
+  Skillo: dizajnové tokeny (karta "Vizuálny dizajn").
+  Smer: inšpirované Preply (Refero, kategória Education), trh s lektormi.
+  Farby a písmo sa menia LEN tu, komponenty používajú triedy ako bg-pink, text-ink.
+
+  Pravidlá rolí (nemeniť, inak sa dizajn rozpadne):
+    pink      LEN plochy: hero blok, panel pri prihlásení, karta bodov.
+              Nikdy nie text (na bielej je nečitateľná) a nikdy nie tlačidlo na ružovej.
+    ink       text, primárne tlačidlá (čierne), aktívne prvky.
+    pink-soft jemné zvýraznenie (vybraté zručnosti "Ponúkam", bodový odznak).
+    subtle    sivé plochy (zručnosti "Hľadám", neutrálne stavy).
+    success / danger / warning  len stavy (pripísané body, chyby, čaká sa).
+*/
+@theme {
+  --color-paper: #ffffff;
+  --color-surface: #ffffff;
+  --color-subtle: #f4f4f8;
+  --color-ink: #121117;
+  --color-muted: #63627a;
+  --color-line: #dcdce5;
+
+  --color-pink: #ff7aac;
+  --color-pink-hover: #ff6aa2;
+  --color-pink-soft: #ffe3ee;
+
+  --color-success: #12704a;
+  --color-success-soft: #ddf3e7;
+  --color-warning: #7a4d00;
+  --color-warning-soft: #fff0d1;
+  --color-danger: #b4232f;
+  --color-danger-soft: #fde6e9;
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 0.75rem;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
