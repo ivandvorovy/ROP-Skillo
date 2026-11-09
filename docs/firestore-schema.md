@@ -37,7 +37,7 @@ Invariant: `pointsBalance >= 0` a `pointsHeld >= 0`.
 
 ## skills/{skillId} `[návrh]`
 
-Kód len číta, či dokument existuje (`requestLesson`). Nič ju zatiaľ nevytvára. Navrhnuté polia:
+Kód číta, či dokument existuje (`requestLesson`). Dočasne ju plní `npm run seed:skills` (`scripts/seed-skills.ts`, ID = slug, napr. `python`), kým nebude hotová karta Kategórie zručností. Polia:
 
 | Pole | Typ | Poznámka |
 |---|---|---|
@@ -160,12 +160,18 @@ Firestore nemá cudzie kľúče, takže ich treba vynútiť disciplínou:
 
 ---
 
-## Indexy (`firestore.indexes.json`) `[návrh]`
+## Indexy (`firestore.indexes.json`) `[kód]`
 
-Zatiaľ nie je v repe. Kód už potrebuje:
-- `lessons`: `status` (==) + `endsAt` (<=), cron `dispute-overdue`.
+Nasadenie: `firebase deploy --only firestore` (rules aj indexy, konfigurácia je vo `firebase.json`).
 
-Kalendár a história budú potrebovať ďalšie (napr. `tutorId` + `startsAt`, `studentId` + `startsAt`). Každý nový dotaz s dvoma podmienkami doplň sem aj do súboru indexov.
+| Kolekcia | Polia | Kto ho používa |
+|---|---|---|
+| `lessons` | `status` ↑, `endsAt` ↑ | cron `dispute-overdue` |
+| `lessons` | `studentId` ↑, `startsAt` ↓ | história lekcií v profile (som študent) |
+| `lessons` | `tutorId` ↑, `startsAt` ↓ | história lekcií v profile (som učiteľ), neskôr kalendár |
+| `points_transactions` | `userId` ↑, `createdAt` ↓ | história bodov v profile |
+
+Každý nový dotaz s filtrom a zoradením podľa iného poľa doplň sem aj do súboru indexov.
 
 ---
 

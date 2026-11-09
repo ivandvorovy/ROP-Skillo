@@ -110,7 +110,7 @@ Stavy lekcie: `requested → confirmed → completed`, vedľajšie vetvy `cancel
 - **Zobrazenie dokumentu s watermarkom**, nahrávanie dokumentov.
 - **Hodnotenia** (`reviews`, prepočet `ratingAvg`), **nahlásenia** (`reports`).
 - **Pripomienky 24 h pred lekciou**.
-- **`package.json`, `tsconfig.json`, UI**: zip je modul na vloženie do Next.js 15 projektu (v routes je `params` ako `Promise`).
+- ~~**`package.json`, `tsconfig.json`**~~ Doplnené: projekt je Next.js 15 + Tailwind 4 (`npm run dev`, `npm run build`).
 
 ---
 
@@ -121,7 +121,7 @@ Stavy lekcie: `requested → confirmed → completed`, vedľajšie vetvy `cancel
 3. **Žiadosť, ktorú učiteľ nikdy nepotvrdí**, drží body zablokované, kým ju študent sám nezruší. Cron rieši len `confirmed`.
 4. **Registrácia nemá rate limit.** Kto pozná doménu školy, môže hromadne vytvárať účty. Bonus síce vyžaduje overený e-mail, ale účty a e-maily vzniknú.
 5. **Vypni verejnú registráciu vo Firebase Auth**, inak sa školská doména dá obísť priamym volaním Firebase API (viď komentár v `register/route.ts`).
-6. **`firebase-admin.ts` hádže chybu pri importe**, ak chýbajú env premenné. Pri `next build` bez nich build spadne.
+6. ~~**`firebase-admin.ts` hádže chybu pri importe**~~ Opravené: Admin SDK sa inicializuje až pri prvom použití, `next build` prejde aj bez env premenných.
 7. **Vzorec ceny je placeholder**, rovnako ako ostatné otvorené body v schéme (pravidlá zrušenia, výmena zručnosť za zručnosť, viditeľnosť zostatku).
 
 ---
