@@ -12,3 +12,8 @@ node_modules/
 # Next.js / TypeScript (generované)
 next-env.d.ts
 *.tsbuildinfo
+
+# Projekt používa npm (package-lock.json)
+pnpm-lock.yaml
+pnpm-workspace.yaml
+yarn.lock
