@@ -9,3 +9,6 @@ node_modules/
 *-firebase-adminsdk-*.json
 *.log
 .DS_Store
+# Next.js / TypeScript (generované)
+next-env.d.ts
+*.tsbuildinfo

@@ -25,5 +25,21 @@ function getAdminApp(): App {
   return initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
 }
 
-export const adminAuth = getAuth(getAdminApp());
-export const adminDb = getFirestore(getAdminApp());
+// Lenivá inicializácia: Admin SDK sa vytvorí až pri prvom použití (prvé volanie API),
+// nie pri importe modulu. `next build` totiž importuje všetky routes, a keby sa
+// inicializovalo hneď, build bez env premenných (napr. na CI) by spadol.
+// Volajúci kód sa nemení: adminDb.collection(...), adminAuth.verifyIdToken(...).
+function lazy<T extends object>(create: () => T): T {
+  let instance: T | undefined;
+  return new Proxy({} as T, {
+    get(_target, prop) {
+      instance ??= create();
+      const value = Reflect.get(instance, prop, instance);
+      // Metódy SDK používajú `this`, preto ich viažeme na skutočnú inštanciu.
+      return typeof value === 'function' ? value.bind(instance) : value;
+    },
+  });
+}
+
+export const adminAuth = lazy(() => getAuth(getAdminApp()));
+export const adminDb = lazy(() => getFirestore(getAdminApp()));
