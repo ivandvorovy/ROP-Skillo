@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Inter_Tight } from 'next/font/google';
+import { Bricolage_Grotesque, Inter, Inter_Tight } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { SiteHeader } from '@/components/site-header';
 import { AuthProvider } from '@/lib/auth-context';
@@ -18,6 +18,13 @@ const body = Inter({
   variable: '--font-body',
   display: 'swap',
 });
+// Len pre wordmark "skillo" v logu (docs/brand/primarne-logo.png), nie pre text webu.
+const logo = Bricolage_Grotesque({
+  subsets: ['latin'],
+  weight: '800',
+  variable: '--font-logo-face',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Skillo',
@@ -26,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="sk" className={`${heading.variable} ${body.variable}`}>
+    <html lang="sk" className={`${heading.variable} ${body.variable} ${logo.variable}`}>
       <body className="min-h-dvh font-sans antialiased">
         <AuthProvider>
           <SiteHeader />

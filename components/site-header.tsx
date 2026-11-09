@@ -3,20 +3,10 @@
 import { signOut } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { SkilloLogo } from '@/components/logo';
 import { buttonClass } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
 import { getClientAuth } from '@/lib/firebase-client';
-
-export function Logo() {
-  return (
-    <span className="inline-flex items-center gap-2 font-display text-xl font-extrabold tracking-tight">
-      <span aria-hidden className="grid size-7 place-items-center rounded-md bg-pink text-sm text-ink">
-        S
-      </span>
-      Skillo
-    </span>
-  );
-}
 
 export function SiteHeader() {
   const { user, loading } = useAuth();
@@ -31,7 +21,7 @@ export function SiteHeader() {
     <header className="border-b border-line bg-paper">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" aria-label="Skillo, domov">
-          <Logo />
+          <SkilloLogo className="text-[26px]" />
         </Link>
 
         {/* Kým sa nevie, či je niekto prihlásený, tlačidlá nezobrazujeme (inak by blikli). */}
