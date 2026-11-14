@@ -35,7 +35,7 @@ Invariant: `pointsBalance >= 0` a `pointsHeld >= 0`.
 
 ---
 
-## skills/{skillId} `[návrh]`
+## skills/{skillId} `[kód]`
 
 Kód číta, či dokument existuje (`requestLesson`). Dočasne ju plní `npm run seed:skills` (`scripts/seed-skills.ts`, ID = slug, napr. `python`), kým nebude hotová karta Kategórie zručností. Polia:
 
