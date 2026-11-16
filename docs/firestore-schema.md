@@ -70,6 +70,7 @@ Vytvára `POST /api/lessons`.
 | reminderSentAt | Timestamp \| null | Filipove pripomienky |
 | studentConfirmedAt | Timestamp \| null | potvrdenie "lekcia prebehla" |
 | tutorConfirmedAt | Timestamp \| null | |
+| confirmedAt | Timestamp | len po potvrdení učiteľom (requested → confirmed) |
 | disputedAt | Timestamp | len pri sporoch |
 | resolvedBy, resolution, resolvedAt | | len po rozhodnutí admina (`pay_tutor` / `refund_student`) |
 | createdAt | Timestamp | |
