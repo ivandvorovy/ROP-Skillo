@@ -35,7 +35,7 @@ Invariant: `pointsBalance >= 0` a `pointsHeld >= 0`.
 
 ---
 
-## skills/{skillId} `[návrh]`
+## skills/{skillId} `[kód]`
 
 Kód číta, či dokument existuje (`requestLesson`). Dočasne ju plní `npm run seed:skills` (`scripts/seed-skills.ts`, ID = slug, napr. `python`), kým nebude hotová karta Kategórie zručností. Polia:
 
@@ -70,6 +70,7 @@ Vytvára `POST /api/lessons`.
 | reminderSentAt | Timestamp \| null | Filipove pripomienky |
 | studentConfirmedAt | Timestamp \| null | potvrdenie "lekcia prebehla" |
 | tutorConfirmedAt | Timestamp \| null | |
+| confirmedAt | Timestamp | len po potvrdení učiteľom (requested → confirmed) |
 | disputedAt | Timestamp | len pri sporoch |
 | resolvedBy, resolution, resolvedAt | | len po rozhodnutí admina (`pay_tutor` / `refund_student`) |
 | createdAt | Timestamp | |
