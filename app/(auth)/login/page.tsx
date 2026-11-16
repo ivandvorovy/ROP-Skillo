@@ -39,6 +39,9 @@ export default function LoginPage() {
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
         <Field label="Školský e-mail" name="email" type="email" autoComplete="email" inputMode="email" required />
         <Field label="Heslo" name="password" type="password" autoComplete="current-password" required />
+        <Link href="/reset-password" className="-mt-2 self-end text-sm text-muted underline underline-offset-4 hover:text-ink">
+          Zabudol si heslo?
+        </Link>
 
         {error && <Alert tone="error">{error}</Alert>}
 

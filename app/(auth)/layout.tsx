@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-// Spoločný rámec pre registráciu, prihlásenie a overenie e-mailu.
+// Spoločný rámec pre registráciu, prihlásenie, overenie e-mailu a obnovu hesla.
 // Desktop: ružový panel vľavo, formulár vpravo. Mobil: len formulár pod tenkým ružovým pásom.
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
