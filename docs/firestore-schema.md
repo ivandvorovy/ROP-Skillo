@@ -27,8 +27,8 @@ Vytvára `POST /api/auth/register`.
 | pointsBalance | number | dostupné body, štart 0 |
 | pointsHeld | number | zablokované body za lekcie čakajúce na uzavretie |
 | welcomeBonusGranted | boolean | bonus 35 bodov, najviac raz |
-| ratingAvg | number | `[návrh]` prepočítava server pri novom hodnotení |
-| ratingCount | number | `[návrh]` rovnako |
+| ratingAvg | number | prepočítava server pri novom hodnotení (`POST /api/lessons/:id/review`) |
+| ratingCount | number | rovnako |
 | createdAt | Timestamp | |
 
 Invariant: `pointsBalance >= 0` a `pointsHeld >= 0`.
@@ -120,21 +120,22 @@ Fronta pre admina. Systémové spory majú ID `dispute_{lessonId}` (najviac jede
 | Pole | Typ | Poznámka |
 |---|---|---|
 | reporterId | string | `'system'` pri automatických sporoch |
-| targetType | string | zatiaľ `'lesson'` |
+| targetType | string | `'lesson' \| 'user' \| 'document' \| 'review'` |
 | targetId | string | |
-| reason | string | zatiaľ `'unconfirmed_lesson'` |
+| reason | string | `'unconfirmed_lesson'` (systémový spor) alebo `'spam' \| 'inappropriate' \| 'fraud' \| 'other'` (od ľudí) |
+| comment | string | voliteľný popis od nahlasovateľa, najviac 500 znakov |
 | confirmedBy | `'student' \| 'tutor' \| 'none'` | |
 | status | `'open' \| 'resolved'` | |
 | createdAt | Timestamp | |
 | resolvedBy, resolvedAt | | po rozhodnutí |
 
-Používateľské nahlásenia (dokument, používateľ) zatiaľ nie sú v kóde, `[návrh]` rovnaká kolekcia s iným `reporterId` a `reason`.
+Používateľské nahlásenia vytvára `POST /api/reports` (`lib/reports.ts`), ID dokumentu je `{reporterId}_{targetType}_{targetId}`, takže to isté nahlási každý najviac raz.
 
 ---
 
-## reviews/{reviewId} `[návrh]`
+## reviews/{reviewId} `[kód]`
 
-Hodnotenie učiteľa po dokončenej lekcii. Patrí Filipovi, ale schéma musí byť dohodnutá pred implementáciou.
+Hodnotenie učiteľa po dokončenej lekcii. Vytvára ho `POST /api/lessons/:lessonId/review` (`lib/reviews.ts`).
 
 | Pole | Typ | Poznámka |
 |---|---|---|
