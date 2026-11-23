@@ -80,6 +80,7 @@ export interface PointsTxItem {
   id: string;
   amount: number;
   type: PointsTxType;
+  lessonId: string | null; // pri lesson_* transakciách, inak null
   createdAt: Date | null; // null na okamih, kým server nedoplní serverTimestamp
 }
 
@@ -215,6 +216,7 @@ export function usePointsHistory(uid: string | undefined): Loadable<PointsTxItem
               id: d.id,
               amount: v.amount,
               type: v.type,
+              lessonId: v.lessonId ?? null,
               createdAt: v.createdAt ? (v.createdAt as Timestamp).toDate() : null,
             };
           }),

@@ -16,6 +16,9 @@ type Tab = 'lessons' | 'points';
 
 export function HistoryCard({ uid, skills }: { uid: string; skills: Skill[] }) {
   const [tab, setTab] = useState<Tab>('lessons');
+  // Lekcie načítame raz pre obe záložky: záložka Body z nich berie názov lekcie.
+  const lessons = useLessonHistory(uid);
+  const skillName = (id: string) => skills.find((s) => s.id === id)?.name ?? 'Lekcia';
 
   return (
     <Card className="p-0">
@@ -28,7 +31,11 @@ export function HistoryCard({ uid, skills }: { uid: string; skills: Skill[] }) {
         </TabButton>
       </div>
       <div className="p-4 sm:p-6" role="tabpanel">
-        {tab === 'lessons' ? <LessonList uid={uid} skills={skills} /> : <PointsList uid={uid} />}
+        {tab === 'lessons' ? (
+          <LessonList lessons={lessons} skillName={skillName} />
+        ) : (
+          <PointsList uid={uid} lessons={lessons.data} skillName={skillName} />
+        )}
       </div>
     </Card>
   );
@@ -52,10 +59,14 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 
 // ---------------------------------------------------------------------------
 
-function LessonList({ uid, skills }: { uid: string; skills: Skill[] }) {
-  const { data, loading, error } = useLessonHistory(uid);
+interface LessonListProps {
+  lessons: { data: LessonItem[]; loading: boolean; error: string | null };
+  skillName: (skillId: string) => string;
+}
+
+function LessonList({ lessons, skillName }: LessonListProps) {
+  const { data, loading, error } = lessons;
   const names = useUserNames(data.map((l) => (l.role === 'student' ? l.tutorId : l.studentId)));
-  const skillName = (id: string) => skills.find((s) => s.id === id)?.name ?? 'Lekcia';
 
   if (loading) return <Loading />;
   if (error) return <Alert tone="error">{error}</Alert>;
@@ -115,8 +126,21 @@ function LessonRow({ lesson, skill, other }: { lesson: LessonItem; skill: string
 
 // ---------------------------------------------------------------------------
 
-function PointsList({ uid }: { uid: string }) {
+interface PointsListProps {
+  uid: string;
+  lessons: LessonItem[];
+  skillName: (skillId: string) => string;
+}
+
+function PointsList({ uid, lessons, skillName }: PointsListProps) {
   const { data, loading, error } = usePointsHistory(uid);
+
+  // Názov lekcie k transakcii. História lekcií má len posledných 20, pri staršej
+  // lekcii sa zobrazí iba typ pohybu bez názvu.
+  const lessonLabel = (lessonId: string | null) => {
+    const lesson = lessonId ? lessons.find((l) => l.id === lessonId) : undefined;
+    return lesson ? skillName(lesson.skillId) : null;
+  };
 
   if (loading) return <Loading />;
   if (error) return <Alert tone="error">{error}</Alert>;
@@ -125,19 +149,20 @@ function PointsList({ uid }: { uid: string }) {
   return (
     <ul className="divide-y divide-line">
       {data.map((tx) => (
-        <PointsRow key={tx.id} tx={tx} />
+        <PointsRow key={tx.id} tx={tx} lesson={lessonLabel(tx.lessonId)} />
       ))}
     </ul>
   );
 }
 
-function PointsRow({ tx }: { tx: PointsTxItem }) {
+function PointsRow({ tx, lesson }: { tx: PointsTxItem; lesson: string | null }) {
   const positive = tx.amount > 0;
+  const details = [lesson, tx.createdAt && formatDate(tx.createdAt)].filter(Boolean).join(' · ');
   return (
     <li className="flex items-center justify-between gap-4 py-3">
       <div>
         <p className="font-medium">{TX_TYPE[tx.type] ?? tx.type}</p>
-        {tx.createdAt && <p className="text-sm text-muted">{formatDate(tx.createdAt)}</p>}
+        {details && <p className="text-sm text-muted">{details}</p>}
       </div>
       <span className={cx('font-semibold tabular-nums', positive ? 'text-success' : 'text-ink')}>
         {positive ? '+' : '−'}
